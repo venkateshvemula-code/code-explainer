@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeSensei - 100% Free & Offline Code Explainer</title>
+  
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Highlight.js for Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    pre, code, textarea { font-family: 'Fira Code', monospace; }
+    .glassmorphism {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 glassmorphism sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 text-white shadow-lg shadow-indigo-500/20">
+          <i data-lucide="code-2" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+            CodeSensei
+          </h1>
+          <p class="text-xs text-indigo-400 font-medium">Standalone Universal Code Explainer</p>
+        </div>
+      </div>
+
+      <!-- Free / No API Badge -->
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          100% Free • No API Key Needed
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Left Column: Input Code Area -->
+    <section class="flex flex-col gap-3">
+      <!-- Controls Toolbar -->
+      <div class="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-slate-900 rounded-xl border border-slate-800 shadow-sm">
+        <div class="flex items-center gap-2">
+          <!-- Language Selector -->
+          <label class="text-xs text-slate-400 pl-1 font-medium">Language:</label>
+          <select id="language-select" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-medium">
+            <option value="auto">⚡ Auto-Detect</option>
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript / TypeScript</option>
+            <option value="java">Java</option>
+            <option value="cpp">C++ / C</option>
+            <option value="csharp">C#</option>
+            <option value="go">Go</option>
+            <option value="rust">Rust</option>
+            <option value="php">PHP</option>
+            <option value="sql">SQL</option>
+            <option value="bash">Bash / Shell</option>
+          </select>
+
+          <!-- Style Selector -->
+          <select id="style-select" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+            <option value="beginner">👶 Beginner Friendly</option>
+            <option value="detailed">📋 Detailed / In-Depth</option>
+          </select>
+        </div>
+
+        <!-- Sample Code Buttons -->
+        <div class="flex items-center gap-1.5">
+          <button id="sample-btn" class="text-xs text-slate-300 hover:text-indigo-400 px-2.5 py-1 rounded-lg transition hover:bg-slate-800">
+            Load Sample
+          </button>
+          <button id="clear-btn" class="text-xs text-slate-300 hover:text-rose-400 px-2.5 py-1 rounded-lg transition hover:bg-slate-800">
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Code Textarea Container -->
+      <div class="relative flex-1 min-h-[460px] bg-slate-900 rounded-2xl border border-slate-800 p-4 focus-within:border-indigo-500/70 shadow-inner flex flex-col">
+        <textarea
+          id="code-input"
+          placeholder="// Paste any code here in any language (Python, JS, Java, C++, Go, Rust, SQL, Bash...)"
+          class="w-full flex-1 bg-transparent text-slate-100 placeholder-slate-500 text-sm leading-relaxed resize-none focus:outline-none focus:ring-0 font-mono"
+          spellcheck="false"
+        ></textarea>
+
+        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between">
+          <span id="char-count" class="text-xs text-slate-500">0 characters</span>
+          <button
+            id="explain-btn"
+            class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 font-semibold text-sm text-white shadow-lg shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>Explain Code</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Results & Analysis -->
+    <section class="flex flex-col gap-4">
+      
+      <!-- Placeholder State -->
+      <div id="empty-state" class="flex-1 min-h-[460px] border border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center p-8 text-center bg-slate-900/30">
+        <div class="p-4 rounded-2xl bg-indigo-500/10 text-indigo-400 mb-4">
+          <i data-lucide="book-open-check" class="w-10 h-10"></i>
+        </div>
+        <h3 class="text-base font-semibold text-slate-200">Ready to Explain Your Code</h3>
+        <p class="text-sm text-slate-400 max-w-sm mt-1">
+          Paste any code snippet on the left and click <strong>"Explain Code"</strong>. It works completely inside the app with zero API keys or external accounts!
+        </p>
+      </div>
+
+      <!-- Output Explanation View -->
+      <div id="result-state" class="hidden flex flex-col gap-4">
+
+        <!-- Overview Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span id="detected-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                PYTHON
+              </span>
+              <span class="text-xs text-emerald-400 font-medium flex items-center gap-1">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                Instant Parser
+              </span>
+            </div>
+            <button id="copy-summary-btn" title="Copy Overview" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>Copy</span>
+            </button>
+          </div>
+
+          <p id="overview-text" class="text-sm text-slate-300 leading-relaxed mt-3"></p>
+
+          <!-- Complexity Badges -->
+          <div class="mt-4 grid grid-cols-2 gap-3 pt-3 border-t border-slate-800">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-[11px] font-medium text-slate-400 block mb-0.5">Time Complexity</span>
+              <span id="time-complexity" class="text-xs font-bold text-amber-400 font-mono">O(n)</span>
+            </div>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <span class="text-[11px] font-medium text-slate-400 block mb-0.5">Space Complexity</span>
+              <span id="space-complexity" class="text-xs font-bold text-cyan-400 font-mono">O(1)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Line By Line Breakdown -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex-1">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+            <i data-lucide="list-tree" class="w-4 h-4 text-indigo-400"></i>
+            Line-by-Line Breakdown
+          </h4>
+          <div id="lines-container" class="space-y-2.5 max-h-[360px] overflow-y-auto pr-1"></div>
+        </div>
+
+        <!-- Best Practices & Tips -->
+        <div id="tips-container" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-2">
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+            Key Highlights & Best Practices
+          </h4>
+          <ul id="tips-list" class="space-y-1.5 text-xs text-slate-300 list-disc list-inside"></ul>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Built-In Universal Code Analyzer (No API Required) -->
+  <script>
+    lucide.createIcons();
+
+    // DOM Elements
+    const codeInput = document.getElementById('code-input');
+    const charCount = document.getElementById('char-count');
+    const languageSelect = document.getElementById('language-select');
+    const styleSelect = document.getElementById('style-select');
+    const explainBtn = document.getElementById('explain-btn');
+    const sampleBtn = document.getElementById('sample-btn');
+    const clearBtn = document.getElementById('clear-btn');
+
+    const emptyState = document.getElementById('empty-state');
+    const resultState = document.getElementById('result-state');
+
+    const detectedBadge = document.getElementById('detected-badge');
+    const overviewText = document.getElementById('overview-text');
+    const timeComplexity = document.getElementById('time-complexity');
+    const spaceComplexity = document.getElementById('space-complexity');
+    const linesContainer = document.getElementById('lines-container');
+    const tipsList = document.getElementById('tips-list');
+
+    // Character counter
+    codeInput.addEventListener('input', () => {
+      charCount.textContent = `${codeInput.value.length} characters`;
+    });
+
+    // Sample code
+    const sampleSnippets = {
+      python: `def binary_search(arr, target):
+    # Pointers for searching window
+    left, right = 0, len(arr) - 1
+    
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+            
+    return -1`,
+      javascript: `async function getUserData(userId) {
+    try {
+        const response = await fetch(\`/api/users/\${userId}\`);
+        if (!response.ok) {
+            throw new Error('User not found');
+        }
+        const data = await response.json();
+        return data;
+    } catch (err) {
+        console.error('Fetch error:', err.message);
+        return null;
+    }
+}`
+    };
+
+    sampleBtn.addEventListener('click', () => {
+      codeInput.value = sampleSnippets.python;
+      languageSelect.value = 'python';
+      charCount.textContent = `${codeInput.value.length} characters`;
+    });
+
+    clearBtn.addEventListener('click', () => {
+      codeInput.value = '';
+      charCount.textContent = '0 characters';
+      resultState.classList.add('hidden');
+      emptyState.classList.remove('hidden');
+    });
+
+    // Built-in Language Detector
+    function detectLanguage(code) {
+      if (/\b(def |import numpy|print\(|elif |__init__|class .*?:)/.test(code)) return 'Python';
+      if (/\b(const |let |function |console\.log|=>|export default|async function)/.test(code)) return 'JavaScript';
+      if (/\b(public static void main|System\.out\.println|public class )/.test(code)) return 'Java';
+      if (/\b(#include <|std::cout|int main\(\)|cout <<)/.test(code)) return 'C++';
+      if (/\b(fn main\(\)|let mut |impl |println!\()/.test(code)) return 'Rust';
+      if (/\b(package main|func |fmt\.Println)/.test(code)) return 'Go';
+      if (/\b(SELECT |FROM |WHERE |INSERT INTO|JOIN |GROUP BY)/i.test(code)) return 'SQL';
+      if (/\b(echo |chmod |grep |sudo |mkdir |apt-get)/.test(code)) return 'Bash';
+      return 'Code';
+    }
+
+    // Built-in Code Explanation Engine (Zero API Needed)
+    function analyzeCode(code, selectedLang, style) {
+      const detectedLang = selectedLang === 'auto' ? detectLanguage(code) : selectedLang.toUpperCase();
+      const rawLines = code.split('\n');
+      const nonEmptyLines = rawLines.filter(l => l.trim().length > 0);
+
+      // Detection flags
+      const hasFor = /\bfor\b/.test(code);
+      const hasWhile = /\bwhile\b/.test(code);
+      const loopMatches = code.match(/\b(for|while)\b/g) || [];
+      const hasNestedLoops = loopMatches.length >= 2;
+      const hasRecursion = /\b([a-zA-Z0-9_]+)\(.*\).*\1\(/.test(code);
+      const hasIf = /\b(if|elif|else if|switch|case)\b/.test(code);
+      const hasFunction = /\b(def |function |func |fn |void |int |async |public )/.test(code);
+      const hasClass = /\b(class |struct |interface )/.test(code);
+      const hasErrorHandling = /\b(try|catch|except|throw|finally)\b/.test(code);
+
+      // Time Complexity
+      let timeComp = 'O(1) Constant Time';
+      if (hasRecursion) {
+        timeComp = 'O(2ⁿ) Exponential or O(log n) Recursive';
+      } else if (hasNestedLoops) {
+        timeComp = 'O(n²) Quadratic Time (Nested loops detected)';
+      } else if (loopMatches.length === 1) {
+        if (/mid|\/\/ 2|\/ 2|>> 1/.test(code)) {
+          timeComp = 'O(log n) Logarithmic Time (Binary reduction pattern)';
+        } else {
+          timeComp = 'O(n) Linear Time (Single loop iteration)';
+        }
+      }
+
+      // Space Complexity
+      let spaceComp = 'O(1) Auxiliary Space';
+      if (/(\[\s*\]|new Array|new ArrayList|vector<|malloc|append|\.push\(|make\(|set\(|dict\()/.test(code)) {
+        spaceComp = 'O(n) Linear Space (Dynamic data allocations)';
+      } else if (hasRecursion) {
+        spaceComp = 'O(n) or O(log n) Call Stack Space';
+      }
+
+      // High-level overview
+      let overview = `This ${detectedLang} snippet consists of ${nonEmptyLines.length} lines of code. `;
+      if (hasFunction) overview += `It defines reusable function logic to process inputs. `;
+      if (hasClass) overview += `It structures data and behavior using Object-Oriented principles. `;
+      if (hasWhile || hasFor) overview += `It employs iterative looping constructs to step through values. `;
+      if (hasIf) overview += `Conditional branching directs control flow based on state conditions. `;
+      if (hasErrorHandling) overview += `It incorporates robust exception and error handling mechanisms. `;
+      if (style === 'beginner') {
+        overview += `In simple terms: it accepts input, evaluates logic conditions step-by-step, and produces an output or modifies state.`;
+      }
+
+      // Line by line breakdown
+      const lineDetails = [];
+      rawLines.forEach((line, index) => {
+        const trimmed = line.trim();
+        if (!trimmed) return;
+
+        let explanation = 'Executes statement.';
+        if (/^(#|\/\/|\/\*|\*)/.test(trimmed)) {
+          explanation = 'Comment / Documentation: Notes or explains code purpose for humans.';
+        } else if (/\b(import|from|#include|require|package)\b/.test(trimmed)) {
+          explanation = `Imports external library or dependency: \`${trimmed}\``;
+        } else if (/\b(def |function |func |fn )\b/.test(trimmed)) {
+          const fnName = trimmed.split('(')[0];
+          explanation = `Function declaration: defines \`${fnName}\` with incoming parameters.`;
+        } else if (/\b(class |struct )\b/.test(trimmed)) {
+          explanation = `Class definition: declares a blueprint with properties and methods.`;
+        } else if (/\b(return)\b/.test(trimmed)) {
+          explanation = `Return statement: halts execution in the function and outputs the calculated value.`;
+        } else if (/\b(if |elif |else if)\b/.test(trimmed)) {
+          explanation = `Conditional branch: evaluates if the condition is true before proceeding.`;
+        } else if (/\b(else)\b/.test(trimmed)) {
+          explanation = `Fallback branch: executes when previous conditional checks evaluate to false.`;
+        } else if (/\b(for )\b/.test(trimmed)) {
+          explanation = `For-loop: iterates across a sequence, range, or collection.`;
+        } else if (/\b(while )\b/.test(trimmed)) {
+          explanation = `While-loop: continues to execute as long as the condition remains true.`;
+        } else if (/\b(try)\b/.test(trimmed)) {
+          explanation = `Try block: tests a block of code for unexpected runtime errors.`;
+        } else if (/\b(catch|except)\b/.test(trimmed)) {
+          explanation = `Catch block: safely intercepts and handles runtime errors without crashing.`;
+        } else if (/\b(print|console\.log|System\.out|fmt\.Print|echo)\b/.test(trimmed)) {
+          explanation = `Output/Log: prints values or debugging info to stdout or console.`;
+        } else if (/=/.test(trimmed) && !/==|!=|<=|>=/.test(trimmed)) {
+          const varName = trimmed.split('=')[0].replace(/(let|const|var|int|float|double|mut)\s+/g, '').trim();
+          explanation = `Variable assignment: assigns a value or expression result to \`${varName}\`.`;
+        }
+
+        lineDetails.push({
+          line_number: index + 1,
+          code: line,
+          explanation: explanation
+        });
+      });
+
+      // Best practices
+      const tips = [
+        "Code Readability: Descriptive variable names significantly improve maintainability.",
+        `Edge Cases: Test boundary conditions (empty input, null/undefined, and maximum limits).`,
+        "Modular Design: Keep individual functions focused on doing one single task well."
+      ];
+
+      return {
+        detected_language: detectedLang,
+        overview: overview,
+        time_complexity: timeComp,
+        space_complexity: spaceComp,
+        line_by_line: lineDetails,
+        tips: tips
+      };
+    }
+
+    // Explain Button Handler
+    explainBtn.addEventListener('click', () => {
+      const code = codeInput.value.trim();
+      if (!code) {
+        alert('Please enter or paste some code first!');
+        return;
+      }
+
+      // Analyze code locally - instant, no API needed!
+      const result = analyzeCode(code, languageSelect.value, styleSelect.value);
+
+      // Render Results
+      detectedBadge.textContent = result.detected_language;
+      overviewText.textContent = result.overview;
+      timeComplexity.textContent = result.time_complexity;
+      spaceComplexity.textContent = result.space_complexity;
+
+      // Lines
+      linesContainer.innerHTML = '';
+      result.line_by_line.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs flex flex-col gap-1';
+        div.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono text-[10px]">Line ${item.line_number}</span>
+            <code class="text-indigo-300 font-mono text-xs overflow-x-auto whitespace-pre">${escapeHtml(item.code)}</code>
+          </div>
+          <p class="text-slate-300 pl-7 text-xs">${escapeHtml(item.explanation)}</p>
+        `;
+        linesContainer.appendChild(div);
+      });
+
+      // Tips
+      tipsList.innerHTML = '';
+      result.tips.forEach(tip => {
+        const li = document.createElement('li');
+        li.textContent = tip;
+        tipsList.appendChild(li);
+      });
+
+      emptyState.classList.add('hidden');
+      resultState.classList.remove('hidden');
+      lucide.createIcons();
+    });
+
+    function escapeHtml(str) {
+      return (str || '').replace(/[&<>"']/g, function(m) {
+        return ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        })[m];
+      });
+    }
+
+    // Copy Summary
+    document.getElementById('copy-summary-btn').addEventListener('click', () => {
+      navigator.clipboard.writeText(overviewText.textContent);
+      alert('Explanation copied to clipboard!');
+    });
+  </script>
+</body>
+</html>
